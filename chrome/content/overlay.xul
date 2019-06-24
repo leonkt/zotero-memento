@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE overlay SYSTEM "chrome://zoteroshortdoi/locale/overlay.dtd">
+
+<overlay
+    id="zoteroshortdoi"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script src="chrome://zoteroshortdoi/content/scripts/zoteroshortdoi.js"/>
+    <script src="chrome://zotero/content/include.js"/>
+
+   
+    <menupopup id="menu_ToolsPopup">
+      <menu id="menu_Tools-zoteroshortdoi-menu" label="Memento Features">
+        <menupopup id="menu_Tools-zoteroshortdoi-menu-popup" onpopupshowing="Zotero.ShortDOI.setCheck();">
+          <menuitem
+              id="menu_Tools-zoteroshortdoi-menu-popup-find"
+              label="Find Archived Version"/>
+          <menuitem
+              id="menu_Tools-zoteroshortdoi-menu-popup-snap"
+              label="Take Snapshot"/>
+        </menupopup>
+      </menu>
+    </menupopup>
+
+
+</overlay>
