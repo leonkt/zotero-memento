@@ -1,4 +1,13 @@
 /*
+ * TODO: Add wrapper callback function that uses the result of push() and parseResponse() 
+ * to create item in Zotero with the given archived link...  
+ */
+
+function pushLinkToZotero() {
+
+}
+
+/*
  * Creates URL to send request to, in order to archive the URI passed in.
  *
  * @param uri: URI of page to archive
@@ -8,24 +17,28 @@
 function constructURI(uri) {
 	return "https://web.archive.org/save/" + uri;
 }
-/*
+/* TODO: Get rid of console.log's and replace with returns
+ *
  * Parses server response to find URL of archived resource.
  *
  * @param response: Server response as text
  * @return: URI of the archived version of the webpage.
  */
-function parseResponse(response) {
+function parseResponse(error, response, body) {
 	locationField = response.caseless.get("Location");
 	contentLocationField = response.caseless.get("Content-Location");
-	if (response && locationField) {
-		return locationField;
+	if (error) {
+		console.log(error);
+	}
+	else if (response && locationField) {
+		console.log(locationField);
 	}
 	else if (response && contentLocationField) {
 		archivedUri = "https://web.archive.org" + contentLocationField;
-		return archivedUri;
+		console.log(archivedUri);
 	}
 	else {
-		return "Cannot be archived";
+		console.log("Cannot be archived");
 	}
 }
 
@@ -35,16 +48,15 @@ function parseResponse(response) {
  * @param uri: URI of the page to archive
  * @return: URI of the archived version of the webpage.
  */
-async function push(uri) {
+function push(uri) {
 	var req = require('request');
 	const init = {
 		method: 'GET',
 		uri: constructURI(uri),
-		resolveWithFullResponse: true
 	};
-	req(init);
+	req(init, parseResponse);
 }
 
 
 
-push("https://jefferson.sgusd.k12.ca.us/");
+push("https://stackoverflow.com/questions/4114095/how-do-i-revert-a-git-repository-to-a-previous-commit");
