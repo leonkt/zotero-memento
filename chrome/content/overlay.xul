@@ -6,10 +6,11 @@
     id="zoteroshortdoi"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-    <script src="chrome://zoteroshortdoi/content/scripts/zoteroshortdoi.js"/>
+    
     <script src="chrome://zotero/content/include.js"/>
 
-   
+    <script src="chrome://zoteroshortdoi/content/scripts/zotero_memento.js"/>
+    
     <menupopup id="menu_ToolsPopup">
       <menu id="menu_Tools-zoteroshortdoi-menu" label="Memento Features">
         <menupopup id="menu_Tools-zoteroshortdoi-menu-popup" onpopupshowing="Zotero.ShortDOI.setCheck();">
