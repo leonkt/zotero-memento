@@ -1,25 +1,29 @@
 <?xml version="1.0"?>
-
-<!DOCTYPE overlay SYSTEM "chrome://zoteroshortdoi/locale/overlay.dtd">
+<!DOCTYPE overlay SYSTEM "chrome://zotero_memento/locale/overlay.dtd">
 
 <overlay
-    id="zoteroshortdoi"
+    id="zotero_memento"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
     
     <script src="chrome://zotero/content/include.js"/>
 
-    <script src="chrome://zoteroshortdoi/content/scripts/zotero_memento.js"/>
-    
+    <!-- <script src="chrome://zotero_memento/content/scripts/zoteroshortdoi.js"/> -->
+    <popup id="zotero-itemmenu">
+      <menu class="menu-iconic" id="zotero-itemmenu-zoteroshortdoi-menu" label="aaaaaaaaaaa">
+            <menupopup id="zotero-itemmenu-zoteroshortdoi-menupopup">
+                <menuitem
+                    id="zotero-itemmenu-zoteroshortdoi-short"
+                    label="fffffffffffffff"/>
+            </menupopup>
+        </menu>
+    </popup>
+
     <menupopup id="menu_ToolsPopup">
       <menu id="menu_Tools-zoteroshortdoi-menu" label="Memento Features">
-        <menupopup id="menu_Tools-zoteroshortdoi-menu-popup" onpopupshowing="Zotero.ShortDOI.setCheck();">
+        <menupopup id="menu_Tools-zoteroshortdoi-menu-popup">
           <menuitem
-              id="menu_Tools-zoteroshortdoi-menu-popup-find"
-              label="Find Archived Version"/>
-          <menuitem
-              id="menu_Tools-zoteroshortdoi-menu-popup-snap"
-              label="Take Snapshot"/>
+              label="aaaaaaaaaaaaa"/>
         </menupopup>
       </menu>
     </menupopup>
