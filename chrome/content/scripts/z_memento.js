@@ -48,14 +48,13 @@ function createCORSRequest(method, url) {
 }
 
 /*
- * Sends the request to archive a given resource.
- *
- * @param {string} uri: URI to the original resource
+ * Sends the request to archive a given resource. Sets the content of the extra field
+ * to reflect the link to the archived version of the resource. 
  * 
  * @return: nothing
  */
 function sendReq() {  
-    var pane = Zotero.getActiveZoteroPane();
+  var pane = Zotero.getActiveZoteroPane();
 	var selectedItems = pane.getSelectedItems();
 	var item = selectedItems[0];
 	var partialURI = item.getField('url');
