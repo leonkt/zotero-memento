@@ -73,6 +73,9 @@ function sendReq() {
             else if (loc) {
             	item.setField("extra", "Archived Link:" + loc);
             }
+            else {
+            	item.setField("extra", "Cannot archive page at this time. Please try again later.");
+            }
             item.save();
         }
     }
