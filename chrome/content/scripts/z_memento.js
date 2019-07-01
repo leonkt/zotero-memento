@@ -1,3 +1,21 @@
+ Zotero.z_memento = {
+  init: function () {
+    var notifierID = Zotero.Notifier.registerObserver(this.notifierCallback, ['item']);
+    window.addEventListener('unload', function(e) {
+        Zotero.Notifier.unregisterObserver(notifierID);
+    }, false);
+  },
+ 
+ 
+  // Callback implementing the notify() method to pass to the Notifier
+  notifierCallback: {
+    notify: function(event, type, ids, extraData) {
+      if (event == 'add') {
+        sendReq();
+      }
+    }
+  }
+};
 
 /*
  * Constructs the URI to archive a given resource.
@@ -8,6 +26,7 @@
  */
 
 function constructURI(uri) {
+  // cors-anywhere is a proxy that adds a CORS header to the request
     return 'https://cors-anywhere.herokuapp.com/https://web.archive.org/save/' + uri;
 }
 
@@ -21,7 +40,6 @@ function constructURI(uri) {
  */
 
 function createCORSRequest(method, url) {
-  //var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
   var xhr = new XMLHttpRequest();
   if ("withCredentials" in xhr) {
 
@@ -53,32 +71,36 @@ function createCORSRequest(method, url) {
  * 
  * @return: nothing
  */
+
 function sendReq() {  
   var pane = Zotero.getActiveZoteroPane();
 	var selectedItems = pane.getSelectedItems();
 	var item = selectedItems[0];
 	var partialURI = item.getField('url');
 	var fullURI = constructURI(partialURI);
-    var req = createCORSRequest("GET", fullURI);
-    req.setRequestHeader('origin', 'https://web.archive.org/');
-    req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-    req.onreadystatechange = function() {
-        if (req.status == 200 && req.readyState == 4) {
-            cLoc = req.getResponseHeader("content-location");
-            loc = req.getResponseHeader("location");
-            if (cLoc) {
-            	item.setField("extra", "Archived Link: http://web.archive.org" + cLoc);
-            }
-            else if (loc) {
-            	item.setField("extra", "Archived Link:" + loc);
-            }
-            else {
-            	item.setField("extra", "Cannot archive page at this time. Please try again later.");
-            }
-            item.save();
+  var req = createCORSRequest("GET", fullURI);
+  req.setRequestHeader('origin', 'https://web.archive.org/');
+  req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+  req.onreadystatechange = function() {
+    if (req.status == 200 && req.readyState == 4) {
+        cLoc = req.getResponseHeader("content-location");
+        loc = req.getResponseHeader("location");
+        currUrl = item.getField("url");
+        if (loc) {
+          item.setField("extra", "Archived Link:" + loc);
+        }
+        else if (cLoc) {
+          item.setField("extra",  "Archived Link: http://web.archive.org" + cLoc);
+        }
+        else {
+          item.setField("extra",  "Cannot archive page at this time. Please try again later.");
+        }
+          item.save();
         }
     }
-    req.send();
+  req.send();
 
 }
 
+
+window.addEventListener('load', function(e) { Zotero.z_memento.init(); }, false);
