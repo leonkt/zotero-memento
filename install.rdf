@@ -7,7 +7,7 @@
         RDF:about="urn:mozilla:install-manifest"
         em:id="zotero-memento@tran.org"
         em:name="Zotero Memento"
-        em:version="1.3.8"
+        em:version="1.0.0"
         em:type="2"
         em:creator="Leon Tran"
         em:description="Plugin for archiving saved resources"

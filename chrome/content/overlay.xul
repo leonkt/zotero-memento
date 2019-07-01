@@ -7,7 +7,6 @@
 
     
     <script src="chrome://zotero/content/include.js"/>
-    <script src="chrome://zotero_memento/content/scripts/IA_pusher.js"/>
     <script src="chrome://zotero_memento/content/scripts/z_memento.js"/>
 
     <popup id="zotero-itemmenu">
