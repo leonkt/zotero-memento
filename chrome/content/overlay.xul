@@ -13,7 +13,7 @@
     <popup id="zotero-itemmenu">
       <menu class="menu-iconic" id="zotero-itemmenu-zoteroshortdoi-menu" label="Archive this Resource">
         <menupopup>
-          <menuitem label="Internet Archive" oncommand="test()"/>
+          <menuitem label="Internet Archive" oncommand="sendReq()"/>
         </menupopup>
       </menu>
     </popup>
