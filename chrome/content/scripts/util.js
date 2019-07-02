@@ -124,8 +124,6 @@ function handleError(status) {
 
   switch (status) {
     case 401:
-      notif = "No access the requested resource.";
-      break;
     case 403:
       notif = "No access to the requested resource.";
       break;
@@ -133,10 +131,8 @@ function handleError(status) {
       notif = "Resource not found. Ensure URL is correct.";
       break;
     case 503:
-      notif = status + "Internet Archive may be down. Try again later.";
-      break;
     case 504:
-      notif = status + "Internet Archive may be down. Try again later.";
+      notif = "Internet Archive may be down. Try again later.";
       break;
     default:
       notif = "Error occurred. Try again later.";
