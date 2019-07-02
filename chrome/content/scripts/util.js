@@ -58,6 +58,31 @@ function checkWellFormedUrl(url) {
   return pattern.test(url);
 }
 
+function modifyExtra(item, cLoc, loc, responseText) {
+  if (loc) {
+    if (checkWellFormedUrl(loc)) {
+      item.setField("extra", "Archived Link: " + loc);
+    }
+    else {
+      item.setField("extra", "Archived Link: https://web.archive.org" + 
+                    extractUrl(responseText));
+    }
+  }
+  else if (cLoc) {
+    if (checkWellFormedUrl(cLoc)) {
+      item.setField("extra",  "Archived Link: http://web.archive.org" + cLoc);
+    }
+    else {
+      item.setField("extra", "Archived Link: " + 'https://web.archive.org' + 
+                    extractUrl(responseText));
+    }
+        
+  }
+  else {
+    item.setField("extra", "Archive URL not found.");
+  }
+  item.saveTx();
+}
 /*
  * Sends the request to archive a given resource. Sets the content of the extra field
  * to reflect the link to the archived version of the resource. 
@@ -78,34 +103,9 @@ function sendReq() {
     if (req.status == 200 && req.readyState == 4) {
       cLoc = req.getResponseHeader("content-location");
       loc = req.getResponseHeader("location");
-      currUrl = item.getField("url");
       var responseText = req.responseText;
-      if (loc) {
-        if (checkWellFormedUrl(loc)) {
-          item.setField("extra", "Archived Link: " + loc);
-        }
-        else {
-          item.setField("extra", "Archived Link: https://web.archive.org" + 
-                        extractUrl(req.responseText));
-        }
-      }
-      else if (cLoc) {
-        if (checkWellFormedUrl(cLoc)) {
-          item.setField("extra",  "Archived Link: http://web.archive.org" + cLoc);
-        }
-        else {
-          item.setField("extra", "Archived Link: " + 'https://web.archive.org' + 
-                        extractUrl(req.responseText));
-        }
-        
-      }
-      else {
-        item.setField("extra", "Archive URL not found.");
-      }
-        item.saveTx();
-      }
-      
+      modifyExtra(item, cLoc, loc, responseText);
     }
+  }
   req.send();
-
 }
