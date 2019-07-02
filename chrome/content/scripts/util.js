@@ -1,5 +1,3 @@
-
-
 /*
  * Constructs the URI to archive a given resource.
  *
@@ -10,7 +8,7 @@
 
 function constructURI(uri) {
   // cors-anywhere is a proxy that adds a CORS header to the request
-    return 'https://cors-anywhere.herokuapp.com/https://web.archive.org/save/' + uri;
+  return 'https://cors-anywhere.herokuapp.com/https://web.archive.org/save/' + uri;
 }
 
 /*
@@ -48,6 +46,18 @@ function createCORSRequest(method, url) {
   return xhr;
 }
 
+
+function extractUrl(responseText) {
+  var start = responseText.indexOf("redirUrl") + 12;
+  var end = responseText.indexOf("\"", start)
+  return responseText.slice(start, end);
+}
+
+function checkWellFormedUrl(url) {
+  var pattern = /\/web\/[0-9]+\/.+/
+  return pattern.test(url);
+}
+
 /*
  * Sends the request to archive a given resource. Sets the content of the extra field
  * to reflect the link to the archived version of the resource. 
@@ -66,20 +76,35 @@ function sendReq() {
   req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
   req.onreadystatechange = function() {
     if (req.status == 200 && req.readyState == 4) {
-        cLoc = req.getResponseHeader("content-location");
-        loc = req.getResponseHeader("location");
-        currUrl = item.getField("url");
-        if (loc) {
-          item.setField("extra", "Archived Link:" + loc);
+      cLoc = req.getResponseHeader("content-location");
+      loc = req.getResponseHeader("location");
+      currUrl = item.getField("url");
+      var responseText = req.responseText;
+      if (loc) {
+        if (checkWellFormedUrl(loc)) {
+          item.setField("extra", "Archived Link: " + loc);
         }
-        else if (cLoc) {
+        else {
+          item.setField("extra", "Archived Link: https://web.archive.org" + 
+                        extractUrl(req.responseText));
+        }
+      }
+      else if (cLoc) {
+        if (checkWellFormedUrl(cLoc)) {
           item.setField("extra",  "Archived Link: http://web.archive.org" + cLoc);
         }
         else {
-          item.setField("extra",  "Cannot archive page at this time. Please try again later.");
+          item.setField("extra", "Archived Link: " + 'https://web.archive.org' + 
+                        extractUrl(req.responseText));
         }
-          item.save();
-        }
+        
+      }
+      else {
+        item.setField("extra", "Archive URL not found.");
+      }
+        item.saveTx();
+      }
+      
     }
   req.send();
 
