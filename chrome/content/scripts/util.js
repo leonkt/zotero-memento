@@ -110,9 +110,42 @@ function modifyExtra(item, cLoc, loc, responseText) {
   item.saveTx();
 }
 
-function handleError() {
+/*
+ * Displays appropriate error window if there is an error with archiving a resource.
+ *
+ * @param {number} status: status code of a the server response.
+ *
+ * @return: nothing.
+ */
 
+function handleError(status) {
+  var errorNotifWindow =  new Zotero.ProgressWindow({closeOnClick:true});
+  var notif = "";
+
+  switch (status) {
+    case 401:
+      notif = "No access the requested resource.";
+      break;
+    case 403:
+      notif = "No access to the requested resource.";
+      break;
+    case 404:
+      notif = "Resource not found. Ensure URL is correct.";
+      break;
+    case 503:
+      notif = status + "Internet Archive may be down. Try again later.";
+      break;
+    case 504:
+      notif = status + "Internet Archive may be down. Try again later.";
+      break;
+    default:
+      notif = "Error occurred. Try again later.";
+  }
+  errorNotifWindow.changeHeadline(notif);
+  errorNotifWindow.show();
+  errorNotifWindow.startCloseTimer(8000);
 }
+
 /*
  * Sends the request to archive a given resource. Sets the content of the extra field
  * to reflect the link to the archived version of the resource. 
@@ -136,9 +169,8 @@ function sendReq() {
       var responseText = req.responseText;
       modifyExtra(item, cLoc, loc, responseText);
     }
-    else if (req.status != 200) {
-      // Popup that says failed to archive in the IA
-      //handleError();
+    else if (req.readyState == 4 && req.status != 200) {
+      handleError(req.status);
     }
   }
   req.send();
