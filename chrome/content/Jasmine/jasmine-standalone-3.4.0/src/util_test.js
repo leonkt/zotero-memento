@@ -1,4 +1,3 @@
-
 /*
  * Constructs the URI to archive a given resource.
  *
@@ -24,14 +23,14 @@ function constructUri(uri) {
  * @return {XMLHttpRequest} appropriate HTTP request to url.
  */
 
-function createCORSRequest(method, url, async) {
+function createCORSRequest(method, url) {
   var xhr = new XMLHttpRequest();
   if ("withCredentials" in xhr && url) {
 
     // Check if the XMLHttpRequest object has a "withCredentials" property.
     // "withCredentials" only exists on XMLHTTPRequest2 objects.
 
-    xhr.open(method, url, async);
+    xhr.open(method, url, true);
   } 
   else {
 
@@ -42,8 +41,6 @@ function createCORSRequest(method, url, async) {
   }
   return xhr;
 }
-
-
 
 /*
  * Extracts the URL from the server response if a well-formed one cannot be found from the 
@@ -86,7 +83,7 @@ function isWellFormedUrl(url) {
 
 function makeAnchorTag(url, archivedUrl, date) {
   return "<a href=\"" + url + "\" data-versionurl=\"" + archivedUrl + "\"" +
-         " data-versiondate=\"2015-01-21\">" + archivedUrl + "</a>";
+         "data-versiondate=\"2015-01-21\"> </a>";
 
 }
 /*
@@ -99,16 +96,22 @@ function makeAnchorTag(url, archivedUrl, date) {
  *
  * @returns: nothing.
  */
-function attachAnchorNote(cLoc, loc, responseText) {
+function attachAnchorNote(item, cLoc, loc, responseText) {
   var ZoteroPane = Zotero.getActiveZoteroPane(); 
   var selectedItems = ZoteroPane.getSelectedItems(); 
   var item = selectedItems[0]; 
   var url = item.getField('url');
   var note = new Zotero.Item('note'); 
   if (loc) {
-    note.setNote(makeAnchorTag(url, loc, null)); 
+    if (isWellFormedUrl(loc)) {
+      note.setNote(makeAnchorTag(url, loc)); 
+    }
+    else {
+      note.setNote(makeAnchorTag(url, "https://web.archive.org" + 
+                   extractUrl(responseText), null));
+    }
     note.parentID = item.id; 
-    note.saveTx();
+    item.saveTx();
   }
   else if (cLoc) {
     if (isWellFormedUrl(cLoc)) {
@@ -119,7 +122,7 @@ function attachAnchorNote(cLoc, loc, responseText) {
                    extractUrl(responseText), null));
     }
     note.parentID = item.id; 
-    note.saveTx();     
+    item.saveTx();     
   }
   else {
     var errorNotifWindow =  new Zotero.ProgressWindow({closeOnClick:true});
@@ -133,7 +136,7 @@ function attachAnchorNote(cLoc, loc, responseText) {
 }
 
 /*
- * Displays appropriate status window if there is an error with archiving a resource.
+ * Displays appropriate error window if there is an error with archiving a resource.
  *
  * @param {number} status: status code of a the server response.
  *
@@ -165,26 +168,6 @@ function handleError(status) {
 }
 
 /*
- * Ensures that a URL leads to a valid page and uses HTTP/HTTPS.
- *
- * @param {string} url: URL to be checked.
- *
- * returns {Boolean}: True if the URL leads to a resource that uses HTTP/HTTPS,
- *                    False otherwise.
- */
-
-function checkValidUrl(url) {
-  var pattern = /https?:\/\/.+/;
-  var status = -1;
-  var https = pattern.test(url);
-  if (!https) {
-    return false;
-  }
-  var xhr = createCORSRequest("HEAD", url, false);
-  xhr.send();
-  return (xhr.status === 200);
-}
-/*
  * Sets properties (ready state change callback, timeout callback, request headers) 
  * for the archive request.
  *
@@ -194,7 +177,7 @@ function checkValidUrl(url) {
  * @return: nothing.
  */
 
-function setRequestProperties(req) {
+function setRequestProperties(item, req) {
   req.setRequestHeader('origin', 'https://web.archive.org/');
   req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
   req.timeout = 10000;
@@ -209,7 +192,7 @@ function setRequestProperties(req) {
       cLoc = req.getResponseHeader("content-location");
       loc = req.getResponseHeader("location");
       var responseText = req.responseText;
-      attachAnchorNote(cLoc, loc, responseText);
+      attachAnchorNote(item, cLoc, loc, responseText);
     }
     else if (req.readyState == 4 && req.status != 200) {
       handleError(req.status);
@@ -228,11 +211,8 @@ function sendReq() {
   var pane = Zotero.getActiveZoteroPane();
   var selectedItems = pane.getSelectedItems();
   var item = selectedItems[0];
-  var url = item.getField('url');
-  if (checkValidUrl(url)) {
-    var fullURI = constructUri(url);
-    var req = createCORSRequest("GET", fullURI, true);
-    setRequestProperties(req);
-    req.send();
-  }
+  var fullURI = constructUri(item.getField('url'));
+  var req = createCORSRequest("GET", fullURI);
+  setRequestProperties(item, req);
+  req.send();
 }

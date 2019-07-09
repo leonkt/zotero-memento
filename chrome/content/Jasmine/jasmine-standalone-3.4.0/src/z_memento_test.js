@@ -12,9 +12,10 @@ Zotero.z_memento = {
   notifierCallback: {
     notify: function(event, type, id, extraData) {
       var item = Zotero.Items.get(id);
-      //if (event == 'add') {
-        //sendReq();
-      //}
+      var iaReq = new IARequest();
+      if (event == 'add') {
+        iaReq.sendReq();
+      }
     }
   }
 };

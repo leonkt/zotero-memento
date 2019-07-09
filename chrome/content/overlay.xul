@@ -5,10 +5,16 @@
     id="zotero_memento"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
+    <link rel="shortcut icon" type="image/png" href="jasmine/lib/jasmine-3.4.0/jasmine_favicon.png"></link>
+    <link rel="stylesheet" type="text/css" href="jasmine/lib/jasmine-3.4.0/jasmine.css"></link>
+
     
     <script src="chrome://zotero/content/include.js"/>
     <script src="chrome://zotero_memento/content/scripts/util.js"/>
     <script src="chrome://zotero_memento/content/scripts/z_memento.js"/>
+    <script type="text/javascript" src="jasmine/lib/jasmine-3.4.0/jasmine.js"></script>
+    <script type="text/javascript" src="jasmine/lib/jasmine-3.4.0/jasmine-html.js"></script>
+    <script type="text/javascript" src="jasmine/lib/jasmine-3.4.0/boot.js"></script>
 
     <popup id="zotero-itemmenu">
       <menu class="menu-iconic" id="zotero-itemmenu-zoteroshortdoi-menu" label="Archive this Resource">
