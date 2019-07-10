@@ -1,4 +1,12 @@
 var IAPusher = new function() {
+    /*
+     * Indicates whether an item has an "archived" tag or not.
+     *
+     * @param {Zotero.Item} item: item to be checked.
+     *
+     * @return {Boolean}: true if item has "archived" tag. Returns false otherwise.
+     */
+
     this.isArchived = function(item) {
       var tags = item.getTags();
       for (i = 0; i < tags.length; i++) {
@@ -53,8 +61,6 @@ var IAPusher = new function() {
       return xhr;
     };
 
-
-
     /*
      * Extracts the URL from the server response if a well-formed one cannot be found from the 
      * location or content-location headers.
@@ -95,6 +101,20 @@ var IAPusher = new function() {
     };
 
     /*
+     * Records the day that an archival request was made in yyyy-mm-dd format.
+     *
+     * @return {string}: a string that represents the current date in yyyy-mm-dd format.
+     */
+
+    this.getDate = function() {
+      var archTime = new Date();
+      var month = ((archTime.getMonth() + 1) < 10) ? "0" + (archTime.getMonth() + 1) : archTime.getMonth() + 1;
+      var day = (archTime.getDate() < 10) ? "0" + archTime.getDate() : archTime.getDate();
+      var year = archTime.getFullYear();
+      return year + "-" + month + "-" + day;
+    };
+
+    /*
      * Creates the decorated anchor tag that leads to the original resource.
      * 
      * @param {string} url: the URL to the original resource.
@@ -104,9 +124,10 @@ var IAPusher = new function() {
      * @param {string}: <a> tag that meets RobustLink specifications.
      */
 
-    this.makeAnchorTag = function(url, archivedUrl, date) {
+    this.makeAnchorTag = function(url, archivedUrl) {
+      var date = this.getDate();
       return "Archived Link: "+"&lt;a href=\"" + archivedUrl + "\" data-originalurl=\"" + url + "\"" +
-             " data-versiondate=\"2015-01-21\"&gt;" + "Robust Link for: " + url + "&lt;/a&gt;";
+             " data-versiondate=\""+ date + "\"&gt;" + "Robust Link for: " + url + "&lt;/a&gt;";
 
     };
     /*
@@ -130,17 +151,17 @@ var IAPusher = new function() {
         item.addTag("archived");
         item.saveTx();        
         if (loc) {
-          note.setNote(this.makeAnchorTag(url, loc, null)); 
+          note.setNote(this.makeAnchorTag(url, loc)); 
           note.parentID = item.id; 
           note.saveTx();
         }
         else if (cLoc) {
           if (this.isWellFormedUrl(cLoc)) {
-            note.setNote(this.makeAnchorTag(url, "http://web.archive.org" + cLoc, null));
+            note.setNote(this.makeAnchorTag(url, "http://web.archive.org" + cLoc));
           }
           else {
             note.setNote(this.makeAnchorTag(url, "https://web.archive.org" + 
-                         this.extractUrl(responseText), null));
+                         this.extractUrl(responseText)));
           }
           note.parentID = item.id; 
           note.saveTx();     
