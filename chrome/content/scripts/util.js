@@ -1,5 +1,14 @@
 var IAPusher = new function() {
-    
+    this.isArchived = function(item) {
+      var tags = item.getTags();
+      for (i = 0; i < tags.length; i++) {
+        if (tags[i.toString()]["tag"] === "archived") {
+          return true;
+        }
+      }
+      return false;
+    };
+
     /*
      * Constructs the URI to archive a given resource.
      *
@@ -96,8 +105,8 @@ var IAPusher = new function() {
      */
 
     this.makeAnchorTag = function(url, archivedUrl, date) {
-      return "<a href=\"" + url + "\" data-versionurl=\"" + archivedUrl + "\"" +
-             " data-versiondate=\"2015-01-21\">" + archivedUrl + "</a>";
+      return "Archived Link: "+"&lt;a href=\"" + archivedUrl + "\" data-originalurl=\"" + url + "\"" +
+             " data-versiondate=\"2015-01-21\"&gt;" + "Robust Link for: " + url + "&lt;/a&gt;";
 
     };
     /*
@@ -117,28 +126,32 @@ var IAPusher = new function() {
       var item = selectedItems[0]; 
       var url = item.getField('url');
       var note = new Zotero.Item('note'); 
-      if (loc) {
-        note.setNote(this.makeAnchorTag(url, loc, null)); 
-        note.parentID = item.id; 
-        note.saveTx();
-      }
-      else if (cLoc) {
-        if (this.isWellFormedUrl(cLoc)) {
-          note.setNote(this.makeAnchorTag(url, "http://web.archive.org" + cLoc, null));
+      if (!this.isArchived(item)) {
+        item.addTag("archived");
+        item.saveTx();        
+        if (loc) {
+          note.setNote(this.makeAnchorTag(url, loc, null)); 
+          note.parentID = item.id; 
+          note.saveTx();
+        }
+        else if (cLoc) {
+          if (this.isWellFormedUrl(cLoc)) {
+            note.setNote(this.makeAnchorTag(url, "http://web.archive.org" + cLoc, null));
+          }
+          else {
+            note.setNote(this.makeAnchorTag(url, "https://web.archive.org" + 
+                         this.extractUrl(responseText), null));
+          }
+          note.parentID = item.id; 
+          note.saveTx();     
         }
         else {
-          note.setNote(this.makeAnchorTag(url, "https://web.archive.org" + 
-                       this.extractUrl(responseText), null));
+          var errorNotifWindow =  new Zotero.ProgressWindow({closeOnClick:true});
+          var notif = "Archive URL not found.";
+          errorNotifWindow.changeHeadline(notif);
+          errorNotifWindow.show();
+          errorNotifWindow.startCloseTimer(8000);   
         }
-        note.parentID = item.id; 
-        note.saveTx();     
-      }
-      else {
-        var errorNotifWindow =  new Zotero.ProgressWindow({closeOnClick:true});
-        var notif = "Archive URL not found.";
-        errorNotifWindow.changeHeadline(notif);
-        errorNotifWindow.show();
-        errorNotifWindow.startCloseTimer(8000);   
       }
     };
 
@@ -150,11 +163,18 @@ var IAPusher = new function() {
      * @return: nothing.
      */
 
-    this.handleError = function(status) {
+    this.handleStatus = function(req, status) {
       var errorNotifWindow =  new Zotero.ProgressWindow({closeOnClick:true});
       var notif = "";
-
+      var self = this;
       switch (status) {
+        case 200:
+          notif = "Success! Note contains archived link.";
+          cLoc = req.getResponseHeader("content-location");
+          loc = req.getResponseHeader("location");
+          var responseText = req.responseText;
+          self.attachAnchorNote(cLoc, loc, responseText);
+          break;
         case 401:
         case 403:
           notif = "No access to the requested resource.";
@@ -171,7 +191,7 @@ var IAPusher = new function() {
       }
       errorNotifWindow.changeHeadline(notif);
       errorNotifWindow.show();
-      errorNotifWindow.startCloseTimer(8000);
+      errorNotifWindow.startCloseTimer(3000);
     };
 
     /*
@@ -190,9 +210,7 @@ var IAPusher = new function() {
       if (!https) {
         return false;
       }
-      var xhr = this.createCORSRequest("HEAD", url, false);
-      xhr.send();
-      return (xhr.status === 200);
+      return true;
     };
     
     /*
@@ -214,17 +232,11 @@ var IAPusher = new function() {
         var timeoutNotifWindow =  new Zotero.ProgressWindow({closeOnClick:true});
         timeoutNotifWindow.changeHeadline("Request timed out. Try again later/check the URL");
         timeoutNotifWindow.show();
-        timeoutNotifWindow.startCloseTimer(8000);
+        timeoutNotifWindow.startCloseTimer(4000);
       }
       req.onreadystatechange = function() {
-        if (req.status == 200 && req.readyState == 4) {
-          cLoc = req.getResponseHeader("content-location");
-          loc = req.getResponseHeader("location");
-          var responseText = req.responseText;
-          self.attachAnchorNote(cLoc, loc, responseText);
-        }
-        else if (req.readyState == 4 && req.status != 200) {
-          self.handleError(req.status);
+        if (req.readyState == 4) {
+          self.handleStatus(req, req.status);
         }
       }
     };
@@ -241,7 +253,7 @@ var IAPusher = new function() {
       var selectedItems = pane.getSelectedItems();
       var item = selectedItems[0];
       var url = item.getField('url');
-      if (this.checkValidUrl(url)) {
+      if (this.checkValidUrl(url) && !item.isAttachment()) {
         var fullURI = this.constructUri(url);
         var req = this.createCORSRequest("GET", fullURI, true);
         this.setRequestProperties(req);
