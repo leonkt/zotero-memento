@@ -121,13 +121,14 @@ var IAPusher = new function() {
      * @param {string} archivedUrl: the URL to the archived version of the resource.
      * @param {string} date: the date represented in 14-digit form (yyyymmdd).
      *
-     * @param {string}: <a> tag that meets RobustLink specifications.
+     * @param {Array}: <a> tag that meets RobustLink specifications and the archived URL.
      */
 
     this.makeAnchorTag = function(url, archivedUrl) {
       var date = this.getDate();
-      return "Archived Link: "+"&lt;a href=\"" + archivedUrl + "\" data-originalurl=\"" + url + "\"" +
-             " data-versiondate=\""+ date + "\"&gt;" + "Robust Link for: " + url + "&lt;/a&gt;";
+      return "Archived Link: "+"&lt;a href=\"" + archivedUrl + "\" data-originalurl=\"" + 
+              url + "\"" + " data-versiondate=\""+ date + "\"&gt;" + "Robust Link for: " + 
+              url + "&lt;/a&gt;";
 
     };
     /*

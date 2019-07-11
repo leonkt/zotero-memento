@@ -10,6 +10,7 @@
 
     
     <script src="chrome://zotero/content/include.js"/>
+    <!--<script src="chrome://zotero_memento/content/scripts/exporters.js"/>-->
     <script src="chrome://zotero_memento/content/scripts/util.js"/>
     <script src="chrome://zotero_memento/content/scripts/z_memento.js"/>
     <script type="text/javascript" src="jasmine/lib/jasmine-3.4.0/jasmine.js"></script>
@@ -20,7 +21,7 @@
     <menuseparator/>
       <menu label="Export Library with Archived Versions">
         <menupopup>
-          <menuitem label="MLA"/>
+          <menuitem label="Text (MLA)"/>
           <menuitem label="BibTex"/>
           <menuitem label="HTML Snippet"/>
         </menupopup>
