@@ -9,25 +9,26 @@
     <link rel="stylesheet" type="text/css" href="jasmine/lib/jasmine-3.4.0/jasmine.css"></link>
 
     
-    <script src="chrome://zotero/content/include.js"/>
-    <!--<script src="chrome://zotero_memento/content/scripts/exporters.js"/>-->
-    <script src="chrome://zotero_memento/content/scripts/util.js"/>
-    <script src="chrome://zotero_memento/content/scripts/z_memento.js"/>
+    
+
+    <script type="text/javascript" src="chrome://zotero/content/include.js"/>  
+    <script type="text/javascript" src="chrome://zotero_memento/content/scripts/util.js"/>
+    <script type="text/javascript" src="chrome://zotero_memento/content/scripts/z_memento.js"/>
+    
     <script type="text/javascript" src="jasmine/lib/jasmine-3.4.0/jasmine.js"></script>
     <script type="text/javascript" src="jasmine/lib/jasmine-3.4.0/jasmine-html.js"></script>
     <script type="text/javascript" src="jasmine/lib/jasmine-3.4.0/boot.js"></script>
 
-    <menupopup id="menu_FilePopup">
+    <!-- <menupopup id="menu_FilePopup">
     <menuseparator/>
       <menu label="Export Library with Archived Versions">
         <menupopup>
-          <menuitem label="Text (MLA)"/>
-          <menuitem label="BibTex"/>
-          <menuitem label="HTML Snippet"/>
+          <menuitem id="mla-exporter"label="Text (MLA)"/>
+          <menuitem id="bibtex-exporter" label="BibTex"/>
+          <menuitem id="snippet-exporter"  label="HTML Snippet"/>
         </menupopup>
       </menu>
-    </menupopup>
-
+    </menupopup>-->
     <popup id="zotero-itemmenu">
       <menu class="menu-iconic" id="zotero-itemmenu-zoteroshortdoi-menu" label="Archive this Resource">
         <menupopup>
@@ -35,6 +36,7 @@
         </menupopup>
       </menu>
     </popup>
+
 
 
 </overlay>

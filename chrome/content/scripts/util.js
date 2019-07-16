@@ -1,4 +1,16 @@
 var IAPusher = new function() {
+
+  this.hasDupNotes = function(item, noteText) {
+    var notes = item.getNotes();
+    for (let noteid of notes) {
+      var note = Zotero.Items.get(noteid);
+      var currNoteText = note.getNote();
+      if (noteText === currNoteText) {
+        return true;
+      }
+    }
+    return false;
+  }
     /*
      * Indicates whether an item has an "archived" tag or not.
      *
@@ -115,17 +127,20 @@ var IAPusher = new function() {
     };
 
     /*
-     * Creates the decorated anchor tag that leads to the original resource.
+     * Creates the decorated anchor tag that leads to the original resource. Sets extra field to
+     * reflect the archived link.
      * 
+     * @param {Zotero.Item} item: the item whose extra field is to be set.
      * @param {string} url: the URL to the original resource.
      * @param {string} archivedUrl: the URL to the archived version of the resource.
-     * @param {string} date: the date represented in 14-digit form (yyyymmdd).
      *
-     * @param {Array}: <a> tag that meets RobustLink specifications and the archived URL.
+     * @param {String}: <a> tag that meets RobustLink specifications and the archived URL.
      */
 
-    this.makeAnchorTag = function(url, archivedUrl) {
+    this.makeAnchorTag = function(item, url, archivedUrl) {
       var date = this.getDate();
+      item.setField("extra", archivedUrl);
+      item.saveTx();
       return "Archived Link: "+"&lt;a href=\"" + archivedUrl + "\" data-originalurl=\"" + 
               url + "\"" + " data-versiondate=\""+ date + "\"&gt;" + "Robust Link for: " + 
               url + "&lt;/a&gt;";
@@ -148,21 +163,34 @@ var IAPusher = new function() {
       var item = selectedItems[0]; 
       var url = item.getField('url');
       var note = new Zotero.Item('note'); 
+      var noteText = "";
       if (!this.isArchived(item)) {
         item.addTag("archived");
-        item.saveTx();        
+        item.saveTx();      
         if (loc) {
-          note.setNote(this.makeAnchorTag(url, loc)); 
+          noteText = this.makeAnchorTag(item, url, loc);
+          if (this.hasDupNotes(item,noteText)) {
+            return;
+          }
+          note.setNote(noteText); 
           note.parentID = item.id; 
           note.saveTx();
         }
         else if (cLoc) {
           if (this.isWellFormedUrl(cLoc)) {
-            note.setNote(this.makeAnchorTag(url, "http://web.archive.org" + cLoc));
+            noteText = this.makeAnchorTag(item, url, "http://web.archive.org" + cLoc);
+            if (this.hasDupNotes(item, noteText)) {
+              return;
+            }
+            note.setNote(noteText);
           }
           else {
-            note.setNote(this.makeAnchorTag(url, "https://web.archive.org" + 
-                         this.extractUrl(responseText)));
+            noteText = this.makeAnchorTag(item, url, "https://web.archive.org" + 
+                       this.extractUrl(responseText));
+            if (this.hasDupNotes(item, noteText)) {
+              return;
+            }
+            note.setNote(noteText);
           }
           note.parentID = item.id; 
           note.saveTx();     
@@ -275,7 +303,7 @@ var IAPusher = new function() {
       var selectedItems = pane.getSelectedItems();
       var item = selectedItems[0];
       var url = item.getField('url');
-      if (this.checkValidUrl(url) && !item.isAttachment()) {
+      if (this.checkValidUrl(url) && !this.isArchived(item) && !item.isAttachment()) {
         var fullURI = this.constructUri(url);
         var req = this.createCORSRequest("GET", fullURI, true);
         this.setRequestProperties(req);
