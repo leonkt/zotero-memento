@@ -267,8 +267,10 @@ function parseDate(archivedUrl) {
 	var dateString = archivedUrl.slice(start, end);
 	var year = (dateString.length >= 4) ? dateString.slice(0, 4) : "";
 	var month = (dateString.length >= 6) ? "-" + dateString.slice(4, 6) : "";
-	var day = (dateString.length >= 8) ? "-" + dateString.slice(6, 8) : ""; 
-	return year + month + day;
+	var day = (dateString.length >= 8) ? "-" + dateString.slice(6, 8) : "";
+	var time = (dateString.length >= 14) ? "T" + dateString.slice(8, 10) + ":" 
+			   + dateString.slice(10, 12) + ":" + dateString.slice(12,14) + "Z" : ""; 
+	return year + month + day + time;
 }
 
 function mapHTMLmarkup(characters) {
@@ -741,7 +743,7 @@ function doExport() {
 				}
 			}
 
-			if (attachmentString) {
+			if (attachmentString && Zotero.getOption("exportFileData")) {
 				writeField("file", attachmentString.substr(1));
 			}
 		}
