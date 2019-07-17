@@ -92,7 +92,7 @@ function parseAuthors(item) {
 function convertItemToEntry(item) {
 	var title = (item.title && item.title.trim() != "") ? "\"" + item.title + ".\" " : "";
 	var author = parseAuthors(item);
-	var siteTitle = (item.websiteTitle && item.websiteTitle.trim() != "") ? + "<i>" + item.websiteTitle 
+	var siteTitle = (item.websiteTitle && item.websiteTitle.trim() != "") ? "<i>" + item.websiteTitle 
 																		    + "</i>" : "";
 	var date = (item.date && item.date.trim() != "") ? createMlaDateString(item.date) : "";
 	var url = (item.url && item.url.trim() != "") ? makeAnchorTag(item.url) : "";
