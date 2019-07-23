@@ -161,6 +161,13 @@ var IAPusher = new function() {
       var ZoteroPane = Zotero.getActiveZoteroPane(); 
       var selectedItems = ZoteroPane.getSelectedItems(); 
       var item = selectedItems[0]; 
+      // Add DOI if not a journal article
+      if (!item.getField("DOI")) {
+        var doiUrl = this.makeDoiUrl(responseText);
+        if (doiUrl != "") {
+          item.setField("url", doiUrl);
+        }
+      }
       var url = item.getField('url');
       var note = new Zotero.Item('note'); 
       var noteText = "";
@@ -263,6 +270,38 @@ var IAPusher = new function() {
       return true;
     };
     
+    this.recognizeDoiPattern = function(responseText, tagName) {
+      var doiPattern = /\d+\.\d+/;
+      var toMatchTag = new RegExp(tagName, "i");
+      var startDoiCit = responseText.search(toMatchTag);
+      if (startDoiCit != -1) {
+        var citTrimmed = responseText.slice(startDoiCit);
+        var startDoi = citTrimmed.search(/\d/);
+        var endDoi = citTrimmed.indexOf("\"", startDoi);
+        var doi = citTrimmed.slice(startDoi, endDoi);
+        var validDoi = doiPattern.test(doi);
+        if (validDoi) {
+          return "https://doi.org/" + doi;
+        }
+      }
+      return "";
+    }
+
+    this.makeDoiUrl = function(responseText) {
+      var dcId = this.recognizeDoiPattern(responseText, "DC.identifier");
+      var citDoi = this.recognizeDoiPattern(responseText, "citation_doi");
+
+      if (dcId != "") {
+        return dcId;
+      }
+      else if (citDoi != "") {
+        return citDoi;
+      }
+      else {
+        return "";
+      }
+    }
+
     /*
      * Sets properties (ready state change callback, timeout callback, request headers) 
      * for the archive request.
@@ -277,7 +316,7 @@ var IAPusher = new function() {
       var self = this;
       req.setRequestHeader('origin', 'https://web.archive.org/');
       req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-      req.timeout = 10000;
+      req.timeout = 4000;
       req.ontimeout = function() {
         var timeoutNotifWindow =  new Zotero.ProgressWindow({closeOnClick:true});
         timeoutNotifWindow.changeHeadline("Request timed out. Try again later/check the URL");

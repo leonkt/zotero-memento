@@ -12,8 +12,9 @@
     
 
     <script type="text/javascript" src="chrome://zotero/content/include.js"/>  
-    <script type="text/javascript" src="chrome://zotero_memento/content/scripts/util.js"/>
-    <script type="text/javascript" src="chrome://zotero_memento/content/scripts/z_memento.js"/>
+    <script type="text/javascript" src="chrome://zotero_memento/content/scripts/Signpost.js"/>
+    <script type="text/javascript" src="chrome://zotero_memento/content/scripts/IaPusher.js"/>
+    <script type="text/javascript" src="chrome://zotero_memento/content/scripts/ZoteroArchive.js"/>
     
     <script type="text/javascript" src="jasmine/lib/jasmine-3.4.0/jasmine.js"></script>
     <script type="text/javascript" src="jasmine/lib/jasmine-3.4.0/jasmine-html.js"></script>

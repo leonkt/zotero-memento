@@ -1,5 +1,4 @@
 Zotero.z_memento = {
-  archived : 1,
   init: function () {
     // if an event involving an item occurs, notifierCallback is invoked.
     var notifierID = Zotero.Notifier.registerObserver(this.notifierCallback, ['item']);
@@ -14,6 +13,7 @@ Zotero.z_memento = {
     notify: function(event, type, id, extraData) {
       var item = Zotero.Items.get(id);
       if (event == 'add') {
+        Zotero.Signpost.signpostEntry();
         IAPusher.sendReq();
       }
     }
