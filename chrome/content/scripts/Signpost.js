@@ -5,6 +5,11 @@ Zotero.Signpost = {
 		}
 	},
 
+	getAuthorOrcids : function(req, item) {
+		orcids = [];
+		var linkHdrText = req.getResponseHeader("Link");
+	},
+	
 	signpostEntry : function() {
 		var pane = Zotero.getActiveZoteroPane();
 		var item = pane.getSelectedItems()[0];

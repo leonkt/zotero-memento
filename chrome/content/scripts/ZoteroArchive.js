@@ -1,4 +1,4 @@
-Zotero.z_memento = {
+Zotero.Memento = {
   init: function () {
     // if an event involving an item occurs, notifierCallback is invoked.
     var notifierID = Zotero.Notifier.registerObserver(this.notifierCallback, ['item']);
@@ -14,10 +14,10 @@ Zotero.z_memento = {
       var item = Zotero.Items.get(id);
       if (event == 'add') {
         Zotero.Signpost.signpostEntry();
-        IAPusher.sendReq();
+
       }
     }
   }
 };
 
-window.addEventListener('load',Zotero.z_memento.init(), false);
+window.addEventListener('load',Zotero.Memento.init(), false);
