@@ -327,6 +327,8 @@ Zotero.IaPusher = {
       req.onreadystatechange = function() {
         if (req.readyState == 4) {
           self.handleStatus(req, req.status);
+          Zotero.Signpost.attachAuthorOrcids(req.getResponseHeader("X-Archive-Orig-Link"));
+
         }
       }
     },
@@ -343,7 +345,7 @@ Zotero.IaPusher = {
       var selectedItems = pane.getSelectedItems();
       var item = selectedItems[0];
       var url = item.getField('url');
-      if (this.checkValidUrl(url) && !this.isArchived(item)) {
+      if (this.checkValidUrl(url) && !Zotero.Signpost.isSignposted(item) && !this.isArchived(item)) {
         var fullURI = this.constructUri(url);
         var req = this.createCORSRequest("GET", fullURI, true);
         this.setRequestProperties(req);

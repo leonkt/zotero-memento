@@ -15,10 +15,9 @@ Zotero.Memento = {
       if (event == 'add') {
         Zotero.IaPusher.sendReq();
         Zotero.Signpost.signpostEntry();
-
       }
     }
   }
 };
 
-window.addEventListener('load',Zotero.Memento.init(), false);
+window.addEventListener('load', Zotero.Memento.init(), false);
