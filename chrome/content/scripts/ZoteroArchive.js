@@ -13,6 +13,7 @@ Zotero.Memento = {
     notify: function(event, type, id, extraData) {
       var item = Zotero.Items.get(id);
       if (event == 'add') {
+        Zotero.IaPusher.sendReq();
         Zotero.Signpost.signpostEntry();
 
       }

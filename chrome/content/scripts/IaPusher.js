@@ -26,6 +26,8 @@ Zotero.IaPusher = {
           return true;
         }
       }
+      item.addTag("archived");
+      item.saveTx();
       return false;
     },
 
