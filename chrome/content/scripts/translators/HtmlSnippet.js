@@ -29,14 +29,20 @@ function parseDate(archivedUrl) {
 }
 
 function makeAnchorTag(item, url, archivedUrl) {
-    return "<a href=\"" + archivedUrl + "\" data-originalurl=\"" + 
-        	url + "\"" + " data-versiondate=\""+ parseDate(archivedUrl) + "\">" + "Robust Link for: " + 
-            url + "</a>";
+	if (archivedUrl) {
+    	return "<a href=\"" + archivedUrl + "\" data-originalurl=\"" + 
+        		url + "\"" + " data-versiondate=\""+ parseDate(archivedUrl) + "\">" + "Robust Link for: " + 
+            	url + "</a>";
+    }
+    else {
+    	return "<a href=\"" + url + "\">" + "Robust Link for: " + url + "</a>";
+    }
 
 }
 
 function doExport() {
 	while (item = Zotero.nextItem()) {
+		var date = 
 		Zotero.write(makeAnchorTag(item, item.url, item.extra) + "\n\n");
 	}
 }
