@@ -42,7 +42,6 @@ function makeAnchorTag(item, url, archivedUrl) {
 
 function doExport() {
 	while (item = Zotero.nextItem()) {
-		var date = 
 		Zotero.write(makeAnchorTag(item, item.url, item.extra) + "\n\n");
 	}
 }

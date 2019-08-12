@@ -116,16 +116,21 @@ Zotero.IaPusher = {
 
     /*
      * Records the day that an archival request was made in yyyy-mm-dd format.
+     * @param {string} : the version URL of the archived resource
      *
      * @return {string}: a string that represents the current date in yyyy-mm-dd format.
      */
 
-    getDate : function() {
-      var archTime = new Date();
-      var month = ((archTime.getMonth() + 1) < 10) ? "0" + (archTime.getMonth() + 1) : archTime.getMonth() + 1;
-      var day = (archTime.getDate() < 10) ? "0" + archTime.getDate() : archTime.getDate();
-      var year = archTime.getFullYear();
-      return year + "-" + month + "-" + day;
+    getDate : function(archivedUrl) {
+      var start = archivedUrl.indexOf("web/") + 4;
+      var end = archivedUrl.indexOf("/", start);
+      var dateString = archivedUrl.slice(start, end);
+      var year = (dateString.length >= 4) ? dateString.slice(0, 4) : "";
+      var month = (dateString.length >= 6) ? "-" + dateString.slice(4, 6) : "";
+      var day = (dateString.length >= 8) ? "-" + dateString.slice(6, 8) : "";
+      var time = (dateString.length >= 14) ? "T" + dateString.slice(8, 10) + ":" 
+              + dateString.slice(10, 12) + ":" + dateString.slice(12,14) + "Z" : ""; 
+      return year + month + day + time;
     },
 
     /*
@@ -140,7 +145,7 @@ Zotero.IaPusher = {
      */
 
     makeAnchorTag : function(item, url, archivedUrl) {
-      var date = this.getDate();
+      var date = this.getDate(archivedUrl);
       item.setField("extra", archivedUrl);
       item.saveTx();
       return "Version URL: "+"&lt;a href=\"" + archivedUrl + "\" data-originalurl=\"" + 
