@@ -6,10 +6,10 @@ Zotero.Signpost = {
 	},
 
 	isSignposted : function(item) {
-      	var tags = item.getTags();
-      	for (i = 0; i < tags.length; i++) {
-        	if (tags[i.toString()]["tag"] === "signposted") {
-          		return true;
+      	for (i = 0; i < item.getAttachments().length; i++) {
+        	var currAttach = Zotero.Items.get(item.getAttachments()[i.toString()]);
+        	if (currAttach.getField("title").indexOf("ORCID") != -1) {
+        		return true;
         	}
       	}
       	return false;
@@ -18,13 +18,14 @@ Zotero.Signpost = {
 	getAuthorOrcids : function(linkHdrText, responseText) {
 		orcids = [];
 		var start = 0;
-		while (true && linkHdrText) {
+		while (linkHdrText) {
 			var currAuthor = linkHdrText.indexOf("rel=\"author\"", start);
 			if (currAuthor === -1) {
 				break;
 			}
 			var startOrcid = linkHdrText.lastIndexOf("http", currAuthor);
-			var endOrcid = linkHdrText.lastIndexOf(">;", currAuthor);
+			var endOrcid = (linkHdrText.lastIndexOf(">;", currAuthor) != -1) ? linkHdrText.lastIndexOf(">;", currAuthor) :
+						    linkHdrText.lastIndexOf(";", currAuthor) ;
 			if (linkHdrText.slice(startOrcid, endOrcid).indexOf("orcid") != -1) {
 				orcids.push(linkHdrText.slice(startOrcid, endOrcid));
 			}
@@ -47,8 +48,6 @@ Zotero.Signpost = {
 				title: "Author ORCID"
 			});
 		}
-		item.addTag("signposted");
-		item.saveTx();
 	},
 
 	signpostEntry : function() {

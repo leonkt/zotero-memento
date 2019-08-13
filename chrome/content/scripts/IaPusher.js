@@ -1,16 +1,4 @@
 Zotero.IaPusher = {
-
-  hasDupNotes : function(item, noteText) {
-    var notes = item.getNotes();
-    for (let noteid of notes) {
-      var note = Zotero.Items.get(noteid);
-      var currNoteText = note.getNote();
-      if (noteText === currNoteText) {
-        return true;
-      }
-    }
-    return false;
-  },
     /*
      * Indicates whether an item has an "archived" tag or not.
      *
@@ -19,17 +7,9 @@ Zotero.IaPusher = {
      * @return {Boolean}: true if item has "archived" tag. Returns false otherwise.
      */
 
-    isArchived : function(item) {
-      var tags = item.getTags();
-      for (i = 0; i < tags.length; i++) {
-        if (tags[i.toString()]["tag"] === "archived") {
-          return true;
-        }
-      }
-      item.addTag("archived");
-      item.saveTx();
-      return false;
-    },
+  isArchived : function(item) {
+    return item.getNotes().length > 0;
+  },
 
     /*
      * Constructs the URI to archive a given resource.
@@ -180,7 +160,7 @@ Zotero.IaPusher = {
       var noteText = ""; 
       if (loc) {
         noteText = this.makeAnchorTag(item, url, loc);
-        if (this.hasDupNotes(item,noteText)) {
+        if (this.isArchived(item)) {
           return;
         }
         note.setNote(noteText); 
@@ -190,7 +170,7 @@ Zotero.IaPusher = {
       else if (cLoc) {
         if (this.isWellFormedUrl(cLoc)) {
           noteText = this.makeAnchorTag(item, url, "http://web.archive.org" + cLoc);
-          if (this.hasDupNotes(item, noteText)) {
+          if (this.isArchived(item)) {
             return;
           }
           note.setNote(noteText);
@@ -198,7 +178,7 @@ Zotero.IaPusher = {
         else {
           noteText = this.makeAnchorTag(item, url, "https://web.archive.org" + 
                      this.extractUrl(responseText));
-          if (this.hasDupNotes(item, noteText)) {
+          if (this.isArchived(item)) {
             return;
           }
           note.setNote(noteText);
@@ -226,14 +206,13 @@ Zotero.IaPusher = {
     handleStatus : function(req, status) {
       var errorNotifWindow =  new Zotero.ProgressWindow({closeOnClick:true});
       var notif = "";
-      var self = this;
       switch (status) {
         case 200:
           notif = "Success! Note contains archived link.";
           cLoc = req.getResponseHeader("content-location");
           loc = req.getResponseHeader("location");
           var responseText = req.responseText;
-          self.attachAnchorNote(cLoc, loc, responseText);
+          this.attachAnchorNote(cLoc, loc, responseText);
           break;
         case 401:
         case 403:
@@ -319,23 +298,8 @@ Zotero.IaPusher = {
      */
 
     setRequestProperties : function(req) {
-      var self = this;
       req.setRequestHeader('origin', 'https://web.archive.org/');
       req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-      req.timeout = 4000;
-      req.ontimeout = function() {
-        var timeoutNotifWindow =  new Zotero.ProgressWindow({closeOnClick:true});
-        timeoutNotifWindow.changeHeadline("Request timed out.");
-        timeoutNotifWindow.show();
-        timeoutNotifWindow.startCloseTimer(4000);
-      }
-      req.onreadystatechange = function() {
-        if (req.readyState == 4) {
-          self.handleStatus(req, req.status);
-          Zotero.Signpost.attachAuthorOrcids(req.getResponseHeader("X-Archive-Orig-Link"));
-
-        }
-      }
     },
 
     /*
@@ -350,11 +314,15 @@ Zotero.IaPusher = {
       var selectedItems = pane.getSelectedItems();
       var item = selectedItems[0];
       var url = item.getField('url');
-      if (this.checkValidUrl(url) && !Zotero.Signpost.isSignposted(item) && !this.isArchived(item)) {
+      if (this.checkValidUrl(url)) {
         var fullURI = this.constructUri(url);
-        var req = this.createCORSRequest("GET", fullURI, true);
+        var req = this.createCORSRequest("GET", fullURI, false);
         this.setRequestProperties(req);
-        req.send();
+        if (!Zotero.Signpost.isSignposted(item) && !this.isArchived(item)) {
+          req.send();
+          this.handleStatus(req, req.status);
+          Zotero.Signpost.attachAuthorOrcids(req.getResponseHeader("X-Archive-Orig-Link"));
+        }
       }
     }
 }
