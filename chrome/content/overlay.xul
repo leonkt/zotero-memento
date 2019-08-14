@@ -33,7 +33,7 @@
     <popup id="zotero-itemmenu">
       <menu class="menu-iconic" id="zotero-itemmenu-zoteroshortdoi-menu" label="Archive this Resource">
         <menupopup>
-          <menuitem label="Internet Archive" oncommand="IAPusher.sendReq()"/>
+          <menuitem label="Internet Archive" oncommand="Zotero.IaPusher.sendReq()"/>
         </menupopup>
       </menu>
     </popup>

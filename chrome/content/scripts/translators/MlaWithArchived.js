@@ -1,7 +1,7 @@
 {
 	"translatorID": "ad6dd56e-7462-4d11-8457-b3c97d54d552",
 	"translatorType": 2,
-	"label": "MLA with Archive",
+	"label": "MLA",
 	"creator": "Leon Tran",
 	"target": "html",
 	"minVersion": "1.0.*",

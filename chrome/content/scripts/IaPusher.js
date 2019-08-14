@@ -87,7 +87,6 @@ Zotero.IaPusher = {
      */
 
     isWellFormedUrl : function(url) {
-
       // URLs to archived resources should always be of the form:
       // https://web.archive.org/web/(date-time of archival)/(URL of original resource).
       var pattern = /\/web\/[0-9]{4,14}\/http.+/
@@ -321,8 +320,8 @@ Zotero.IaPusher = {
         if (!Zotero.Signpost.isSignposted(item) && !this.isArchived(item)) {
           req.send();
           this.handleStatus(req, req.status);
-          Zotero.Signpost.attachAuthorOrcids(req.getResponseHeader("X-Archive-Orig-Link"));
         }
+        return req;
       }
     }
 }

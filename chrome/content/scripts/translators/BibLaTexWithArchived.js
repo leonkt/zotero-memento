@@ -1,7 +1,7 @@
 {
 	"translatorID": "1503c297-c7c6-4a71-a853-5ab3c8e2a1ae",
 	"translatorType": 2,
-	"label": "BibLaTex with Archive",
+	"label": "BibLaTex",
 	"creator": "Leon Tran",
 	"target": "bib",
 	"minVersion": "1.0.*",

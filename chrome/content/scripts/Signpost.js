@@ -24,8 +24,9 @@ Zotero.Signpost = {
 				break;
 			}
 			var startOrcid = linkHdrText.lastIndexOf("http", currAuthor);
-			var endOrcid = (linkHdrText.lastIndexOf(">;", currAuthor) != -1) ? linkHdrText.lastIndexOf(">;", currAuthor) :
-						    linkHdrText.lastIndexOf(";", currAuthor) ;
+			var endOrcid = (linkHdrText.lastIndexOf(">;", currAuthor) != -1) 
+							? linkHdrText.lastIndexOf(">;", currAuthor) 
+							:linkHdrText.lastIndexOf(";", currAuthor) ;
 			if (linkHdrText.slice(startOrcid, endOrcid).indexOf("orcid") != -1) {
 				orcids.push(linkHdrText.slice(startOrcid, endOrcid));
 			}
@@ -33,7 +34,31 @@ Zotero.Signpost = {
 		}
 		return orcids;
 	},
+
+	setRequestProperties : function(req) {
+      req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+      req.setRequestHeader('Accept', 'application/vnd.orcid+xml');
+      req.setRequestHeader('Authorization', 'Bearer f9dabfcf-d0de-40ed-bb2e-7111e5015b8e');
+    },
+
+	getAuthorName : function(fullOrcidUrl) {
+		var orcidPattern = /[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}/
+		var orcidIdStart = fullOrcidUrl.search(orcidPattern);
+		var orcidId = fullOrcidUrl.slice(orcidIdStart, orcidIdStart + 19);
+		var orcidReqUrl = "https://cors-anywhere.herokuapp.com/https://pub.sandbox.orcid.org/v2.0/" 
+						  + orcidId +"/record";
+		var req = Zotero.IaPusher.createCORSRequest("GET", orcidReqUrl, false);
+		this.setRequestProperties(req);
+		req.send();
+		var authorNameStart = req.responseText.indexOf(">", 
+							  req.responseText.indexOf("<personal-details:credit-name>")) + 1;
+		var authorNameEnd = req.responseText.indexOf("</personal-details:", authorNameStart);
+
 	
+		return (authorNameStart < 1 || authorNameEnd < 1) ? null 
+			   : req.responseText.slice(authorNameStart, authorNameEnd);
+	},
+
 	attachAuthorOrcids : function(linkHdrText) {
 		var pane = Zotero.getActiveZoteroPane();
 		var item = pane.getSelectedItems()[0];
@@ -42,17 +67,21 @@ Zotero.Signpost = {
 		}
 		var orcids = this.getAuthorOrcids(linkHdrText);
 		for (var orcidUrl in orcids) {
+			var authorName = this.getAuthorName(orcids[orcidUrl.toString()]);
 			Zotero.Attachments.linkFromURL({
 				url: orcids[orcidUrl.toString()],
 				parentItemID: item.getField("id"),
-				title: "Author ORCID"
+				title: (authorName) ? authorName + "'s ORCID Profile" :"Author's ORCID Profile"
 			});
 		}
 	},
 
-	signpostEntry : function() {
+	
+
+	signpostEntry : function(linkText) {
 		var pane = Zotero.getActiveZoteroPane();
 		var item = pane.getSelectedItems()[0];
 		this.modifyLink(item);
+		this.attachAuthorOrcids(linkText);
 	}
 }
