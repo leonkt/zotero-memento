@@ -252,8 +252,15 @@ Zotero.IaPusher = {
     },
     
     /*
-     * Generates the 
+     * Searches and returns the response text for a given tag that contains the DOI url.
+     *
+     * @param {string} responseText: the response test from the Internet Archive.
+     * @param {string} tagName: the tag that we locate to extract the DOI url.
+     * 
+     * @return {string}: return the text of tagName if the tagName is found in the response.
+     *.                  Else, returns the empty string if the tagName can't be found.
      */
+
     recognizeDoiPattern : function(responseText, tagName) {
       var doiPattern = /\d+\.\d+/;
       var toMatchTag = new RegExp(tagName, "i");
@@ -270,6 +277,16 @@ Zotero.IaPusher = {
       }
       return "";
     },
+
+    /*
+     * Creates the DOI URL for a journal article. This is to replace the landing page in the URL 
+     * field. 
+     *
+     * @param {string} responseText: the response text from the Internet Archive.
+     * 
+     * @return {string}: If resource has a DOI return the DOI of the resource. Else, return empty 
+     *                   string
+     */
 
     makeDoiUrl : function(responseText) {
       var dcId = this.recognizeDoiPattern(responseText, "DC.identifier");
