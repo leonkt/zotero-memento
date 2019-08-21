@@ -7,9 +7,9 @@ Zotero.IaPusher = {
      * @return {Boolean}: true if item has "archived" tag. Returns false otherwise.
      */
 
-  isArchived : function(item) {
-    return item.getNotes().length > 0;
-  },
+    isArchived : function(item) {
+      return item.getNotes().length > 0;
+    },
 
     /*
      * Constructs the URI to archive a given resource.
