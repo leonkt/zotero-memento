@@ -272,6 +272,9 @@ Zotero.IaPusher = {
         var doi = citTrimmed.slice(startDoi, endDoi);
         var validDoi = doiPattern.test(doi);
         if (validDoi) {
+          if (doi.indexOf("doi") != - 1) {
+            return doi;
+          }
           return "https://doi.org/" + doi;
         }
       }
@@ -338,7 +341,7 @@ Zotero.IaPusher = {
           req.send();
           this.handleStatus(req, req.status);
         }
-        return req;
+        return req.getResponseHeader("X-Archive-Orig-Link");
       }
     }
 }

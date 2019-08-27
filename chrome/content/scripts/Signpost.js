@@ -9,7 +9,7 @@ Zotero.Signpost = {
 
 	modifyLink : function(item) {
 		if (item.getField("DOI")) {
-			item.setField("url", "https://doi.org/" + item.getField("DOI"));
+			item.setField("url", item.getField("DOI"));
 		}
 	},
 
@@ -70,7 +70,7 @@ Zotero.Signpost = {
 	setRequestProperties : function(req) {
       req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
       req.setRequestHeader('Accept', 'application/vnd.orcid+xml');
-      req.setRequestHeader('Authorization', 'Bearer f9dabfcf-d0de-40ed-bb2e-7111e5015b8e');
+      req.setRequestHeader('Authorization', 'Bearer f5af9f51-07e6-4332-8f1a-c0c11c1e3728');
     },
 
     /*
@@ -86,11 +86,16 @@ Zotero.Signpost = {
 		var orcidPattern = /[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}/
 		var orcidIdStart = fullOrcidUrl.search(orcidPattern);
 		var orcidId = fullOrcidUrl.slice(orcidIdStart, orcidIdStart + 19);
-		var orcidReqUrl = "https://cors-anywhere.herokuapp.com/https://pub.sandbox.orcid.org/v2.0/" 
+		var orcidReqUrl = "https://cors-anywhere.herokuapp.com/https://sandbox.orcid.org/v2.0/" 
 						  + orcidId +"/record";
 		var req = Zotero.IaPusher.createCORSRequest("GET", orcidReqUrl, false);
 		this.setRequestProperties(req);
 		req.send();
+
+
+		console.log(req.responseText);
+
+
 		var authorNameStart = req.responseText.indexOf(">", 
 							  req.responseText.indexOf("<personal-details:credit-name>")) + 1;
 		var authorNameEnd = req.responseText.indexOf("</personal-details:", authorNameStart);

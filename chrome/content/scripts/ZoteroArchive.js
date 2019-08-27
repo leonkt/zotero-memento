@@ -13,8 +13,8 @@ Zotero.Memento = {
     notify: function(event, type, id, extraData) {
       var item = Zotero.Items.get(id);
       if (event == 'add') {
-        var req = Zotero.IaPusher.sendReq();
-        Zotero.Signpost.signpostEntry(req.getResponseHeader("X-Archive-Orig-Link"));
+        var reqText = Zotero.IaPusher.sendReq();
+        Zotero.Signpost.signpostEntry(reqText);
       }
     }
   }
