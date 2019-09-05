@@ -18,7 +18,7 @@ Once you save an item to the library via the Browser connector, a success popup 
 
 **Translators**
 
-Once you open the ZoteroArchive XPI, you will find a folder named translators, which contain a number of export translators. Each of these translators is based off of an existing translator in Zotero, with the addition of two more properties:
+In chrome/content/scripts/, you will find a folder named translators, which contain a number of export translators. Each of these translators is based off of an existing translator in Zotero, with the addition of two more properties:
 
    * a URL to an archived version of the resource
    * the datetime that the resource was archived
