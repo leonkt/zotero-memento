@@ -8,7 +8,12 @@ Zotero.IaPusher = {
      */
 
     isArchived : function(item) {
-      return item.getNotes().length > 0;
+      for (tag in item.getTags()) {
+        if (item.getTags[tag]["tag"] == "archived") {
+          return true;
+        }
+      }
+      return false;
     },
 
     /*
@@ -125,7 +130,12 @@ Zotero.IaPusher = {
 
     makeAnchorTag : function(item, url, archivedUrl) {
       var date = this.getDate(archivedUrl);
-      item.setField("extra", archivedUrl);
+      if (item.getField("extra").length != 0) {
+        item.setField("extra", item.getField("extra") +"; " + archivedUrl);
+      }
+      else {
+        item.setField("extra", archivedUrl);
+      }
       item.saveTx();
       return "Version URL: "+"&lt;a href=\"" + archivedUrl + "\" data-originalurl=\"" + 
               url + "\"" + " data-versiondate=\""+ date + "\"&gt;" + "Robust Link for: " + 
@@ -182,8 +192,10 @@ Zotero.IaPusher = {
           }
           note.setNote(noteText);
         }
-        note.parentID = item.id; 
-        note.saveTx();     
+        note.parentID = item.id;
+        note.saveTx();
+        item.addTag("archived");
+        item.saveTx();
       }
       else {
         var errorNotifWindow =  new Zotero.ProgressWindow({closeOnClick:true});
