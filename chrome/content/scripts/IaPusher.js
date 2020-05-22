@@ -178,7 +178,7 @@ Zotero.IaPusher = {
       }
       else if (cLoc) {
         if (this.isWellFormedUrl(cLoc)) {
-          noteText = this.makeAnchorTag(item, url, "http://web.archive.org" + cLoc);
+          noteText = this.makeAnchorTag(item, url, "https://web.archive.org" + cLoc);
           if (this.isArchived(item)) {
             return;
           }
