@@ -9,7 +9,7 @@ Zotero.IaPusher = {
 
     isArchived : function(item) {
       for (tag in item.getTags()) {
-        if (item.getTags[tag]["tag"] == "archived") {
+        if (item.getTags()[tag]["tag"] == "archived") {
           return true;
         }
       }
@@ -29,7 +29,8 @@ Zotero.IaPusher = {
         return null;
       }
       // cors-anywhere is a proxy that adds a CORS header to the request
-      return 'https://cors-anywhere.herokuapp.com/https://web.archive.org/save/' + uri;
+      // https://cors-anywhere.herokuapp.com/
+      return 'https://web.archive.org/save/' + uri;
     },
 
     /*
@@ -117,6 +118,19 @@ Zotero.IaPusher = {
       return year + month + day + time;
     },
 
+    setExtra : function(item, archivedUrl) {
+      if (item.getField("extra").length != 0 ) {
+        if (item.getField("extra").includes(archivedUrl)){
+          return;
+        }
+
+        item.setField("extra", item.getField("extra") +"; " + archivedUrl);
+      }
+      else {
+        item.setField("extra", archivedUrl);
+      }
+      item.saveTx();
+    },
     /*
      * Creates the decorated anchor tag that leads to the original resource. Sets extra field to
      * reflect the archived link.
@@ -130,13 +144,6 @@ Zotero.IaPusher = {
 
     makeAnchorTag : function(item, url, archivedUrl) {
       var date = this.getDate(archivedUrl);
-      if (item.getField("extra").length != 0) {
-        item.setField("extra", item.getField("extra") +"; " + archivedUrl);
-      }
-      else {
-        item.setField("extra", archivedUrl);
-      }
-      item.saveTx();
       return "Version URL: "+"&lt;a href=\"" + archivedUrl + "\" data-originalurl=\"" + 
               url + "\"" + " data-versiondate=\""+ date + "\"&gt;" + "Robust Link for: " + 
               url + "&lt;/a&gt;";
@@ -153,49 +160,18 @@ Zotero.IaPusher = {
      * @returns: nothing.
      */
 
-    attachAnchorNote : function (cLoc, loc, responseText) {
-      var ZoteroPane = Zotero.getActiveZoteroPane(); 
-      var selectedItems = ZoteroPane.getSelectedItems(); 
-      var item = selectedItems[0]; 
-      // Add DOI if not a journal article
-      if (!item.getField("DOI")) {
-        var doiUrl = this.makeDoiUrl(responseText);
-        if (doiUrl != "") {
-          item.setField("url", doiUrl);
-        }
-      }
+    attachAnchorNote : function (item, archived) {
       var url = item.getField('url');
       var note = new Zotero.Item('note'); 
       var noteText = ""; 
-      if (loc) {
-        noteText = this.makeAnchorTag(item, url, loc);
+      if (archived && archived != "") {
+        noteText = this.makeAnchorTag(item, url, archived);
         if (this.isArchived(item)) {
           return;
         }
         note.setNote(noteText); 
         note.parentID = item.id; 
         note.saveTx();
-      }
-      else if (cLoc) {
-        if (this.isWellFormedUrl(cLoc)) {
-          noteText = this.makeAnchorTag(item, url, "https://web.archive.org" + cLoc);
-          if (this.isArchived(item)) {
-            return;
-          }
-          note.setNote(noteText);
-        }
-        else {
-          noteText = this.makeAnchorTag(item, url, "https://web.archive.org" + 
-                     this.extractUrl(responseText));
-          if (this.isArchived(item)) {
-            return;
-          }
-          note.setNote(noteText);
-        }
-        note.parentID = item.id;
-        note.saveTx();
-        item.addTag("archived");
-        item.saveTx();
       }
       else {
         var errorNotifWindow =  new Zotero.ProgressWindow({closeOnClick:true});
@@ -214,18 +190,16 @@ Zotero.IaPusher = {
      * @return: nothing.
      */
 
-    handleStatus : function(req, status) {
+    handleStatus : function(item, req, status, archived) {
       var errorNotifWindow =  new Zotero.ProgressWindow({closeOnClick:true});
       var notif = "";
       switch (status) {
         case 200:
           notif = "Success! Note contains archived link.";
-          cLoc = req.getResponseHeader("content-location");
-          loc = req.getResponseHeader("location");
-          var responseText = req.responseText;
-          this.attachAnchorNote(cLoc, loc, responseText);
+          this.attachAnchorNote(item, archived);
           break;
         case 401:
+          break;
         case 403:
           notif = "No access to the requested resource.";
           break;
@@ -340,6 +314,10 @@ Zotero.IaPusher = {
      * @return: nothing
      */
 
+    getLastMemento : function(linkage) {
+      return linkage.slice(linkage.lastIndexOf("<") + 1, linkage.lastIndexOf(">"));
+    },
+
     sendReq : function() {  
       var pane = Zotero.getActiveZoteroPane();
       var selectedItems = pane.getSelectedItems();
@@ -351,9 +329,15 @@ Zotero.IaPusher = {
         this.setRequestProperties(req);
         if (!Zotero.Signpost.isSignposted(item) && !this.isArchived(item)) {
           req.send();
-          this.handleStatus(req, req.status);
+          a_link = this.getLastMemento(req.getResponseHeader("Link"));
+          this.setExtra(item, a_link);
+          this.handleStatus(item, req, req.status, a_link);
+          //item.saveTx();
+          item.addTag("archived");
+          item.saveTx();
+          return a_link;
         }
-        return req.getResponseHeader("X-Archive-Orig-Link");
+        return "";
       }
     }
 }
