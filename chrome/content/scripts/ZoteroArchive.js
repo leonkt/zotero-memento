@@ -14,7 +14,7 @@ Zotero.Memento = {
       var item = Zotero.Items.get(id);
       if (event == 'add') {
         var reqText = Zotero.IaPusher.sendReq();
-        Zotero.Signpost.signpostEntry(reqText);
+        //Zotero.Signpost.signpostEntry(reqText);
       }
     }
   }

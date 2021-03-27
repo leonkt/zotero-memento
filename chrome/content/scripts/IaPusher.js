@@ -318,26 +318,31 @@ Zotero.IaPusher = {
       return linkage.slice(linkage.lastIndexOf("<") + 1, linkage.lastIndexOf(">"));
     },
 
-    sendReq : function() {  
+    onSend: function(item, req) {
+      a_link = this.getLastMemento(req.getResponseHeader("Link"));
+      this.setExtra(item, a_link);
+      this.handleStatus(item, req, req.status, a_link);
+      item.addTag("archived");
+      item.saveTx();
+    },
+
+    sendReq : async function() {  
       var pane = Zotero.getActiveZoteroPane();
       var selectedItems = pane.getSelectedItems();
       var item = selectedItems[0];
       var url = item.getField('url');
       if (this.checkValidUrl(url)) {
         var fullURI = this.constructUri(url);
-        var req = this.createCORSRequest("GET", fullURI, false);
+        var req = this.createCORSRequest("GET", fullURI, true);
         this.setRequestProperties(req);
         if (!Zotero.Signpost.isSignposted(item) && !this.isArchived(item)) {
+          req.addEventListener('load', function(){
+            Zotero.IaPusher.onSend(item, req)
+          });
           req.send();
-          a_link = this.getLastMemento(req.getResponseHeader("Link"));
-          this.setExtra(item, a_link);
-          this.handleStatus(item, req, req.status, a_link);
-          //item.saveTx();
-          item.addTag("archived");
-          item.saveTx();
-          return a_link;
+          //return a_link;
         }
-        return "";
+        //return "";
       }
     }
 }
