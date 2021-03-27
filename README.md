@@ -1,9 +1,10 @@
 # zotero-memento
-## To Install
-Go to RELEASES and follow the instructions there. If that doesn't work then follow the instructions below.
 
+## Installation
 
-Download this repo as .ZIP and extract. Then, go INTO the folder zotero-memento-master and compress the files INSIDE that folder (not the folder itself) into a .ZIP file. Change the extension of this newly created .ZIP file to .XPI. In Zotero, click Tools > Addons. Then press the Gear in the top-right corner, select "Install Add-Ons", and select the .XPI file. Restart Zotero to let the extension take effect. 
+Download the latest `ZoteroMemento.xpi` from the [releases page](https://github.com/leonkt/zotero-memento/releases/latest/). Note that if you're using Firefox, you have to right-click on the file and select <kbd>Save Link As…</kbd>, otherwise Firefox will try to install the file as its own extension (which will result in an error) since Firefox uses the same extension format.
+
+Then, in Zotero, click <kbd>Tools</kbd> → <kbd>Add-ons</kbd> → <kbd>⚙</kbd> → <kbd>Install Add-On From File…</kbd> and select the `ZoteroMemento.xpi` file you've downloaded before. Finally, restart Zotero to enable the extension.
 
 ## Archiving a Webpage AUTOMATICALLY
 
@@ -11,8 +12,8 @@ Zotero Archive automatically saves pages added to your library through the Brows
 
    * Saves the URL of the archived version of the item in the Internet Archive to the "Extra" field.
    * Attaches a note with an anchor tag to the archived resource to the item.
-   * Attaches the ORCID profiles of the authors to the item. These can be accessed by clicking the dropdown menu to view the      notes and attachments.
-   * This only works for resources saved from websites that support the Signposting standard. More info can be found at             http://signposting.org/
+   * Attaches the ORCID profiles of the authors to the item. These can be accessed by clicking the dropdown menu to view the notes and attachments.
+   * This only works for resources saved from websites that support the Signposting standard. More info can be found at http://signposting.org/
 
 ## How to Archive Webpages MANUALLY
 
