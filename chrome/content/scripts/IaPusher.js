@@ -195,7 +195,7 @@ Zotero.IaPusher = {
       var notif = "";
       switch (status) {
         case 200:
-          notif = "Success! Note contains archived link.";
+          notif = "Success! \"Extra\" has archived link.";
           this.attachAnchorNote(item, archived);
           break;
         case 401:
@@ -336,6 +336,11 @@ Zotero.IaPusher = {
         var req = this.createCORSRequest("GET", fullURI, true);
         this.setRequestProperties(req);
         if (!Zotero.Signpost.isSignposted(item) && !this.isArchived(item)) {
+          var prog = new Zotero.ProgressWindow({closeOnClick:true});
+          prog.changeHeadline("This may take a while...");
+          prog.show()
+          prog.startCloseTimer(10000);
+
           req.addEventListener('load', function(){
             Zotero.IaPusher.onSend(item, req)
           });
